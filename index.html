@@ -2,11 +2,882 @@
 <html lang="it">
 <head>
   <meta charset="utf-8" />
-  <title>Test Training Tracker</title>
+  <title>Gym Progress Tracker</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 16px;
+      color-scheme: light dark;
+    }
+
+    body {
+      margin: 0;
+      background: #0f172a;
+      color: #e5e7eb;
+    }
+
+    .app {
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      margin: 0 0 0.5rem;
+      text-align: center;
+    }
+
+    .subtitle {
+      text-align: center;
+      font-size: 0.85rem;
+      color: #9ca3af;
+      margin-bottom: 1rem;
+    }
+
+    .card {
+      background: #111827;
+      border-radius: 1rem;
+      padding: 0.9rem;
+      margin-bottom: 0.8rem;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+      border: 1px solid #1f2937;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.4rem;
+    }
+
+    .card-title {
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    .small {
+      font-size: 0.8rem;
+      color: #9ca3af;
+    }
+
+    label {
+      font-size: 0.8rem;
+      display: block;
+      margin-bottom: 0.15rem;
+    }
+
+    input, select, button, textarea {
+      font: inherit;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    input[type="date"],
+    select,
+    textarea {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 0.45rem 0.5rem;
+      border-radius: 0.7rem;
+      border: 1px solid #374151;
+      background: #020617;
+      color: #e5e7eb;
+      margin-bottom: 0.4rem;
+    }
+
+    textarea {
+      min-height: 50px;
+      resize: vertical;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      outline: 2px solid #22c55e;
+      outline-offset: 1px;
+      border-color: transparent;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.25rem;
+      padding: 0.45rem 0.8rem;
+      border-radius: 999px;
+      border: none;
+      background: #22c55e;
+      color: #022c22;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: #e5e7eb;
+      border: 1px solid #374151;
+    }
+
+    .btn-sm {
+      padding: 0.25rem 0.6rem;
+      font-size: 0.8rem;
+    }
+
+    .btn:active {
+      transform: scale(0.97);
+    }
+
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-top: 0.2rem;
+    }
+
+    .exercise-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+      margin-top: 0.5rem;
+    }
+
+    .exercise-item-btn {
+      width: 100%;
+      text-align: left;
+      border-radius: 0.7rem;
+      padding: 0.45rem 0.6rem;
+      border: 1px solid #374151;
+      background: #020617;
+      color: #e5e7eb;
+      font-size: 0.9rem;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .exercise-item-btn.active {
+      background: #22c55e;
+      border-color: #16a34a;
+      color: #022c22;
+      font-weight: 600;
+    }
+
+    .exercise-item-name {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .exercise-item-sub {
+      font-size: 0.75rem;
+      opacity: 0.8;
+    }
+
+    .row {
+      display: flex;
+      gap: 0.4rem;
+    }
+
+    .row > * {
+      flex: 1;
+    }
+
+    .timer-display {
+      font-size: 1.5rem;
+      font-weight: 700;
+      text-align: center;
+      margin: 0.4rem 0;
+    }
+
+    .tag {
+      padding: 0.1rem 0.45rem;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      border: 1px solid #374151;
+      color: #9ca3af;
+    }
+
+    .tag-strong {
+      border-color: #f97316;
+      color: #fed7aa;
+    }
+
+    .tag-hypertrophy {
+      border-color: #22c55e;
+      color: #bbf7d0;
+    }
+
+    .suggestion {
+      font-size: 0.85rem;
+      margin-top: 0.3rem;
+      color: #e5e7eb;
+    }
+
+    .suggestion strong {
+      color: #22c55e;
+    }
+
+    .last-session {
+      font-size: 1rem;
+      color: #e5e7eb;
+      line-height: 1.4;
+      margin-bottom: 0.4rem;
+    }
+
+    .last-session strong {
+      font-size: 1.05rem;
+    }
+
+    .muted {
+      color: #6b7280;
+      font-size: 0.8rem;
+    }
+
+    .mode-toggle {
+      display: flex;
+      gap: 0.4rem;
+      margin-top: 0.4rem;
+    }
+
+    .mode-btn {
+      flex: 1;
+      padding: 0.5rem 0.4rem;
+      border-radius: 0.8rem;
+      border: 1px solid #374151;
+      background: #020617;
+      color: #e5e7eb;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+    }
+
+    .mode-btn.active-hypertrophy {
+      background: #22c55e;
+      color: #022c22;
+      border-color: #16a34a;
+    }
+
+    .mode-btn.active-strength {
+      background: #f97316;
+      color: #111827;
+      border-color: #ea580c;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8rem;
+      margin-top: 0.5rem;
+    }
+
+    th, td {
+      padding: 0.25rem 0.3rem;
+      border-bottom: 1px solid #1f2937;
+      text-align: left;
+    }
+
+    th {
+      font-weight: 600;
+      color: #9ca3af;
+    }
+
+    @media (min-width: 600px) {
+      .app {
+        padding: 1.5rem;
+      }
+    }
+  </style>
 </head>
-<body style="background:#0f172a;color:#e5e7eb;font-family:sans-serif;">
-  <h1 style="text-align:center;margin-top:2rem;">Ciao 👋</h1>
-  <p style="text-align:center;">Se leggi questo testo, la index.html funziona.</p>
+<body>
+<div class="app">
+  <h1>Gym Progress Tracker</h1>
+  <div class="subtitle">
+    Traccia pesi, ripetizioni e recuperi dal tuo telefono.
+  </div>
+
+  <!-- Pagina principale: aggiungi esercizio + lista -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">I tuoi esercizi</div>
+      <span class="small">macchine, bilancieri, ecc.</span>
+    </div>
+
+    <!-- Form semplice: solo nome esercizio -->
+    <form id="addExerciseForm">
+      <label for="exerciseName">Nome esercizio / macchina</label>
+      <input id="exerciseName" type="text" required placeholder="Leg press, panca piana..." />
+      <button class="btn" type="submit">+ Aggiungi esercizio</button>
+    </form>
+
+    <div class="small" style="margin-top:0.5rem;">Elenco esercizi:</div>
+    <div id="exerciseList" class="exercise-list"></div>
+  </div>
+
+  <!-- Dettaglio esercizio selezionato -->
+  <div id="exerciseDetail" class="card" style="display:none;">
+    <div class="card-header">
+      <div class="card-title" id="detailName"></div>
+      <div class="small">
+        <span id="modeTag" class="tag"></span>
+      </div>
+    </div>
+
+    <!-- Toggle modalità grande -->
+    <div class="mode-toggle">
+      <button type="button" id="modeHypertrophyBtn" class="mode-btn">Massa / Ipertrofia</button>
+      <button type="button" id="modeStrengthBtn" class="mode-btn">Forza / Potenza</button>
+    </div>
+
+    <!-- Ultima sessione (testo più grande) -->
+    <div class="last-session" id="lastSessionBox"></div>
+
+    <!-- Suggerimento algoritmo -->
+    <div class="suggestion" id="suggestionBox"></div>
+
+    <!-- Pulsante cambio target rip -->
+    <div class="btn-row" style="margin-top:0.5rem;">
+      <button class="btn-sm btn-outline btn" id="cycleTargetBtn" type="button">
+        +1 rip obiettivo (8→12)
+      </button>
+    </div>
+
+    <hr style="border:none;border-top:1px solid #1f2937;margin:0.6rem 0;">
+
+    <!-- Form registrazione serie -->
+    <form id="logSessionForm">
+      <div class="row">
+        <div>
+          <label for="logDate">Data</label>
+          <input id="logDate" type="date" required />
+        </div>
+        <div>
+          <label for="logMode">Modalità</label>
+          <select id="logMode">
+            <option value="hypertrophy">Ipertrofia</option>
+            <option value="strength">Forza</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label for="logWeight">Peso (kg)</label>
+          <input id="logWeight" type="number" step="0.5" required />
+        </div>
+        <div>
+          <label for="logReps">Ripetizioni</label>
+          <input id="logReps" type="number" min="1" max="20" required />
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label for="logRestSec">Recupero effettivo (secondi)</label>
+          <input id="logRestSec" type="number" min="10" step="10" />
+        </div>
+        <div>
+          <label>&nbsp;</label>
+          <div class="muted">
+            Se lasci vuoto, uso il recupero consigliato per quella modalità.
+          </div>
+        </div>
+      </div>
+
+      <label for="logNotes">Note (facile, durissima, ecc.)</label>
+      <textarea id="logNotes" placeholder="Ultima rip al limite? Molto facile?"></textarea>
+
+      <button class="btn" type="submit">Salva serie</button>
+    </form>
+
+    <!-- Timer recupero -->
+    <div id="timerCard" style="margin-top:0.7rem;">
+      <div class="card-header" style="padding:0;margin-bottom:0.2rem;">
+        <div class="card-title" style="font-size:0.95rem;">Timer recupero</div>
+        <span class="small" id="timerModeLabel"></span>
+      </div>
+      <div class="muted" id="timerInfo"></div>
+      <div class="timer-display" id="timerDisplay">00:00</div>
+      <div class="btn-row">
+        <button class="btn" id="startTimerBtn" type="button">Start</button>
+        <button class="btn btn-outline" id="stopTimerBtn" type="button">Stop</button>
+        <button class="btn btn-outline btn-sm" id="resetTimerBtn" type="button">Reset</button>
+      </div>
+    </div>
+
+    <!-- Storico sessioni -->
+    <div id="historyBox" style="margin-top:0.8rem;">
+      <div class="small">Storico serie:</div>
+      <div id="historyContent" class="muted">Nessuna serie salvata.</div>
+    </div>
+  </div>
+
+  <div class="muted" style="margin-top:0.6rem;">
+    Suggerimenti interni semplici; ascolta sempre il tuo corpo e, per sicurezza, confrontati con un trainer o un medico prima di cambiare radicalmente carichi/ritmi.
+  </div>
+</div>
+
+<script>
+(function () {
+  const STORAGE_KEY = "gymProgressApp_v2";
+
+  let state = loadState();
+  let currentExerciseId = state.lastSelectedExerciseId || null;
+
+  let timerInterval = null;
+  let timerSecondsLeft = 0;
+
+  function defaultState() {
+    return {
+      exercises: [],
+      lastSelectedExerciseId: null,
+    };
+  }
+
+  function loadState() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return defaultState();
+      const parsed = JSON.parse(raw);
+      if (!parsed.exercises) return defaultState();
+
+      // Migrazione: assicuro campi mancanti
+      parsed.exercises.forEach(ex => {
+        if (typeof ex.weightStep !== "number") ex.weightStep = 2.5;
+        if (typeof ex.targetReps !== "number") ex.targetReps = 8;
+        if (typeof ex.restHypertrophySec !== "number") ex.restHypertrophySec = 90;
+        if (typeof ex.restStrengthSec !== "number") ex.restStrengthSec = 180;
+        if (!ex.mode) ex.mode = "hypertrophy";
+        if (!Array.isArray(ex.sessions)) ex.sessions = [];
+        ex.sessions.forEach(s => {
+          if (!("restSec" in s)) {
+            // se non c'è, metto null (così in tabella mostro "-")
+            s.restSec = null;
+          }
+        });
+      });
+
+      return parsed;
+    } catch (e) {
+      console.error("Errore caricamento stato", e);
+      return defaultState();
+    }
+  }
+
+  function saveState() {
+    try {
+      state.lastSelectedExerciseId = currentExerciseId;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    } catch (e) {
+      console.error("Errore salvataggio stato", e);
+    }
+  }
+
+  function generateId() {
+    return "ex_" + Math.random().toString(36).slice(2, 10);
+  }
+
+  function getExerciseById(id) {
+    return state.exercises.find(ex => ex.id === id) || null;
+  }
+
+  function formatDateShort(iso) {
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) return iso;
+    return d.toLocaleDateString("it-IT", { day: "2-digit", month: "2-digit" });
+  }
+
+  function secondsToMMSS(sec) {
+    const m = Math.floor(sec / 60);
+    const s = sec % 60;
+    return String(m).padStart(2, "0") + ":" + String(s).padStart(2, "0");
+  }
+
+  // --- Render lista esercizi (pagina principale) ---
+  function renderExerciseList() {
+    const container = document.getElementById("exerciseList");
+    container.innerHTML = "";
+    if (!state.exercises.length) {
+      const span = document.createElement("span");
+      span.className = "muted";
+      span.textContent = "Nessun esercizio ancora. Aggiungine uno sopra.";
+      container.appendChild(span);
+      return;
+    }
+
+    state.exercises.forEach(ex => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className =
+        "exercise-item-btn" + (ex.id === currentExerciseId ? " active" : "");
+      const last = ex.sessions[ex.sessions.length - 1];
+
+      const nameSpan = document.createElement("div");
+      nameSpan.className = "exercise-item-name";
+      nameSpan.textContent = ex.name;
+
+      const subSpan = document.createElement("div");
+      subSpan.className = "exercise-item-sub";
+      if (last) {
+        subSpan.textContent =
+          formatDateShort(last.date) +
+          " • " +
+          last.weight +
+          " kg • " +
+          last.reps +
+          " rip";
+      } else {
+        subSpan.textContent = "Nessun dato ancora";
+      }
+
+      const wrapper = document.createElement("div");
+      wrapper.style.display = "flex";
+      wrapper.style.flexDirection = "column";
+      wrapper.appendChild(nameSpan);
+      wrapper.appendChild(subSpan);
+
+      btn.appendChild(wrapper);
+
+      btn.addEventListener("click", () => {
+        currentExerciseId = ex.id;
+        saveState();
+        renderExerciseList();
+        renderExerciseDetail();
+        // scroll al dettaglio (utile su mobile)
+        document.getElementById("exerciseDetail").scrollIntoView({ behavior: "smooth" });
+      });
+
+      container.appendChild(btn);
+    });
+  }
+
+  // --- Suggerimenti progressione ---
+  function buildSuggestion(ex) {
+    if (!ex.sessions || ex.sessions.length === 0) {
+      return "Per questo esercizio non hai ancora dati. " +
+        "Inizia cercando il peso con cui riesci a fare <strong>8 ripetizioni</strong> " +
+        "dove l’ottava è proprio al limite (quasi cedimento). " +
+        "Quando l’hai trovato, salvalo come prima serie.";
+    }
+
+    const last = ex.sessions[ex.sessions.length - 1];
+    let s = "";
+    const target = ex.targetReps || 8;
+
+    const hyperSessions = ex.sessions.filter(s => s.mode === "hypertrophy").length;
+    const strengthSessions = ex.sessions.filter(s => s.mode === "strength").length;
+
+    if (ex.mode === "strength") {
+      s += "Sei in <strong>modalità FORZA</strong>. ";
+      s += "Lavora con movimento concentrico rapido e controllato, " +
+           "mantieni il peso impegnativo e usa poche ripetizioni (3–6) se vuoi, " +
+           "con recuperi lunghi (2–4 minuti). ";
+      if (strengthSessions >= 4) {
+        s += "Hai già fatto diverse sessioni di forza: puoi valutare di tornare in ipertrofia " +
+             "e riprendere il ciclo 8→12 con un peso leggermente superiore.";
+      }
+      return s;
+    }
+
+    // Modalità ipertrofia
+    s += "Sei in <strong>modalità IPERTROFIA</strong>. Obiettivo attuale: <strong>" + target + " rip</strong>.\n";
+
+    if (last.reps < target) {
+      s += "L’ultima volta hai fatto <strong>" + last.reps +
+           " rip</strong> con " + last.weight + " kg, meno dell’obiettivo. ";
+      s += "Ripeti lo stesso peso e prova ad avvicinarti all’obiettivo di <strong>" + target + " rip</strong>.";
+    } else if (last.reps >= target && target < 12) {
+      s += "L’ultima volta hai raggiunto almeno l’obiettivo (" + last.reps + " rip). ";
+      s += "La prossima volta puoi puntare a <strong>" + (target + 1) +
+           " rip</strong> con lo stesso peso. Usa il pulsante “+1 rip obiettivo”.";
+    } else if (target >= 12 && last.reps >= 12) {
+      s += "Hai raggiunto facilmente le <strong>12 rip</strong> con questo peso. ";
+      s += "Puoi aumentare il carico di circa <strong>" + ex.weightStep +
+           " kg</strong> (o lo step più vicino sulla macchina) e tornare a un obiettivo di <strong>8 rip</strong>.";
+    }
+
+    if (hyperSessions >= 6 && hyperSessions % 3 === 0) {
+      s += " Ogni tanto può essere utile inserire una fase di <strong>FORZA</strong>: " +
+           "puoi passare alla modalità forza per alcune sedute con recuperi più lunghi.";
+    }
+
+    return s;
+  }
+
+  // --- Render storico tabella ---
+  function renderHistory(ex) {
+    const historyContent = document.getElementById("historyContent");
+    if (!ex.sessions.length) {
+      historyContent.innerHTML = "<span class='muted'>Nessuna serie salvata.</span>";
+      return;
+    }
+
+    let html = "<table><thead><tr>" +
+      "<th>Data</th><th>Peso</th><th>Rip</th><th>Rec. (s)</th><th>Mod.</th><th>Note</th>" +
+      "</tr></thead><tbody>";
+
+    ex.sessions.forEach(s => {
+      html += "<tr>" +
+        "<td>" + formatDateShort(s.date) + "</td>" +
+        "<td>" + s.weight + "</td>" +
+        "<td>" + s.reps + "</td>" +
+        "<td>" + (s.restSec != null ? s.restSec : "-") + "</td>" +
+        "<td>" + (s.mode === "strength" ? "F" : "I") + "</td>" +
+        "<td>" + (s.notes ? escapeHtml(s.notes) : "") + "</td>" +
+        "</tr>";
+    });
+
+    html += "</tbody></table>";
+    historyContent.innerHTML = html;
+  }
+
+  // --- Render dettaglio esercizio ---
+  function renderExerciseDetail() {
+    const detailCard = document.getElementById("exerciseDetail");
+
+    const ex = getExerciseById(currentExerciseId);
+    if (!ex) {
+      detailCard.style.display = "none";
+      return;
+    }
+    detailCard.style.display = "";
+
+    document.getElementById("detailName").textContent = ex.name;
+
+    const modeTag = document.getElementById("modeTag");
+    const hypertrophyBtn = document.getElementById("modeHypertrophyBtn");
+    const strengthBtn = document.getElementById("modeStrengthBtn");
+
+    // Tag piccolo
+    if (ex.mode === "strength") {
+      modeTag.textContent = "Forza / Potenza";
+      modeTag.className = "tag tag-strong";
+    } else {
+      modeTag.textContent = "Ipertrofia / Dimagrimento";
+      modeTag.className = "tag tag-hypertrophy";
+    }
+
+    // Bottoni grandi
+    hypertrophyBtn.className = "mode-btn" +
+      (ex.mode === "hypertrophy" ? " active-hypertrophy" : "");
+    strengthBtn.className = "mode-btn" +
+      (ex.mode === "strength" ? " active-strength" : "");
+
+    const lastBox = document.getElementById("lastSessionBox");
+    if (!ex.sessions.length) {
+      lastBox.innerHTML =
+        "<strong>Ultima volta:</strong> " +
+        "<span class='muted'>nessuna serie salvata per questo esercizio.</span>";
+    } else {
+      const last = ex.sessions[ex.sessions.length - 1];
+      lastBox.innerHTML =
+        "<strong>Ultima volta:</strong><br>" +
+        formatDateShort(last.date) +
+        " • " + last.weight + " kg • " + last.reps + " rip" +
+        " • " + (last.mode === "strength" ? "forza" : "ipertrofia") +
+        (last.restSec != null
+          ? " • rec: " + last.restSec + "s"
+          : "") +
+        (last.notes ? "<br><span class='muted'>Note: " + escapeHtml(last.notes) + "</span>" : "");
+    }
+
+    const suggestionBox = document.getElementById("suggestionBox");
+    suggestionBox.innerHTML = buildSuggestion(ex);
+
+    // form log: default oggi, modalità attuale, peso/rep dell'ultima volta, recupero consigliato
+    const todayISO = new Date().toISOString().slice(0, 10);
+    document.getElementById("logDate").value = todayISO;
+    document.getElementById("logMode").value = ex.mode || "hypertrophy";
+
+    const last = ex.sessions[ex.sessions.length - 1];
+    document.getElementById("logWeight").value = last ? last.weight : "";
+    document.getElementById("logReps").value = last ? last.reps : "";
+    const defaultRest =
+      ex.mode === "strength" ? ex.restStrengthSec : ex.restHypertrophySec;
+    document.getElementById("logRestSec").value = defaultRest;
+
+    // timer info
+    updateTimerConfig();
+
+    // storico
+    renderHistory(ex);
+  }
+
+  // --- Timer ---
+  function updateTimerConfig() {
+    const ex = getExerciseById(currentExerciseId);
+    if (!ex) return;
+    const timerInfo = document.getElementById("timerInfo");
+    const timerModeLabel = document.getElementById("timerModeLabel");
+
+    const restHyper = ex.restHypertrophySec;
+    const restStrength = ex.restStrengthSec;
+
+    if (ex.mode === "strength") {
+      timerModeLabel.textContent = "Modalità: Forza (recuperi lunghi)";
+      timerInfo.textContent =
+        "Recupero consigliato: " + Math.round(restStrength / 60) +
+        " minuti circa per lavorare sulla potenza.";
+      timerSecondsLeft = restStrength;
+    } else {
+      timerModeLabel.textContent = "Modalità: Ipertrofia (volume, dimagrimento)";
+      timerInfo.textContent =
+        "Recupero consigliato: " + Math.round(restHyper / 60) +
+        " min (60–90s tipici) per favorire il lavoro sui muscoli.";
+      timerSecondsLeft = restHyper;
+    }
+
+    updateTimerDisplay();
+  }
+
+  function updateTimerDisplay() {
+    document.getElementById("timerDisplay").textContent = secondsToMMSS(timerSecondsLeft);
+  }
+
+  function startTimer() {
+    if (timerInterval) return;
+    timerInterval = setInterval(() => {
+      timerSecondsLeft = Math.max(0, timerSecondsLeft - 1);
+      updateTimerDisplay();
+      if (timerSecondsLeft <= 0) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+        navigator.vibrate && navigator.vibrate(400);
+      }
+    }, 1000);
+  }
+
+  function stopTimer() {
+    if (timerInterval) {
+      clearInterval(timerInterval);
+      timerInterval = null;
+    }
+  }
+
+  function resetTimer() {
+    stopTimer();
+    updateTimerConfig();
+  }
+
+  // --- Utility ---
+  function escapeHtml(str) {
+    return String(str)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+
+  // --- Event listeners ---
+
+  // Aggiungi esercizio (solo nome)
+  document.getElementById("addExerciseForm").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const name = document.getElementById("exerciseName").value.trim();
+    if (!name) return;
+
+    const ex = {
+      id: generateId(),
+      name,
+      weightStep: 2.5,
+      targetReps: 8,
+      restHypertrophySec: 90,
+      restStrengthSec: 180,
+      mode: "hypertrophy",
+      sessions: []
+    };
+
+    state.exercises.push(ex);
+    currentExerciseId = ex.id;
+    saveState();
+
+    document.getElementById("exerciseName").value = "";
+    renderExerciseList();
+    renderExerciseDetail();
+  });
+
+  // Modalità: massa/ipertrofia
+  document.getElementById("modeHypertrophyBtn").addEventListener("click", () => {
+    const ex = getExerciseById(currentExerciseId);
+    if (!ex) return;
+    ex.mode = "hypertrophy";
+    saveState();
+    renderExerciseDetail();
+  });
+
+  // Modalità: forza
+  document.getElementById("modeStrengthBtn").addEventListener("click", () => {
+    const ex = getExerciseById(currentExerciseId);
+    if (!ex) return;
+    ex.mode = "strength";
+    saveState();
+    renderExerciseDetail();
+  });
+
+  // +1 rip obiettivo (fino a 12, poi torna a 8)
+  document.getElementById("cycleTargetBtn").addEventListener("click", () => {
+    const ex = getExerciseById(currentExerciseId);
+    if (!ex) return;
+    if (!ex.targetReps) ex.targetReps = 8;
+    if (ex.targetReps < 12) {
+      ex.targetReps += 1;
+    } else {
+      ex.targetReps = 8;
+    }
+    saveState();
+    renderExerciseDetail();
+  });
+
+  // Log nuova serie
+  document.getElementById("logSessionForm").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const ex = getExerciseById(currentExerciseId);
+    if (!ex) return;
+
+    const date = document.getElementById("logDate").value || new Date().toISOString().slice(0, 10);
+    const mode = document.getElementById("logMode").value;
+    const weight = parseFloat(document.getElementById("logWeight").value);
+    const reps = parseInt(document.getElementById("logReps").value, 10);
+    let restSecInput = document.getElementById("logRestSec").value;
+    let restSec = restSecInput ? parseInt(restSecInput, 10) : null;
+    const notes = document.getElementById("logNotes").value.trim();
+
+    if (!weight || !reps) return;
+
+    // se recupero non indicato, uso quello consigliato per la modalità
+    if (restSec == null || isNaN(restSec)) {
+      restSec =
+        mode === "strength" ? ex.restStrengthSec : ex.restHypertrophySec;
+    }
+
+    ex.sessions.push({
+      date,
+      mode,
+      weight,
+      reps,
+      restSec,
+      notes
+    });
+
+    document.getElementById("logNotes").value = "";
+    saveState();
+    renderExerciseDetail();
+  });
+
+  // Timer controls
+  document.getElementById("startTimerBtn").addEventListener("click", startTimer);
+  document.getElementById("stopTimerBtn").addEventListener("click", stopTimer);
+  document.getElementById("resetTimerBtn").addEventListener("click", resetTimer);
+
+  // --- Init ---
+  renderExerciseList();
+  if (currentExerciseId && getExerciseById(currentExerciseId)) {
+    renderExerciseDetail();
+  }
+})();
+</script>
 </body>
 </html>
